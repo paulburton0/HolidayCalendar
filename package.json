@@ -1,0 +1,23 @@
+{
+  "name": "holidaycalendar",
+  "version": "1.0.0",
+  "description": "Creates an ICS calendar file that can be imported into any supported platform. Shows US National Holidays",
+  "main": "HolidayCalendar_ICS.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulburton0/HolidayCalendar.git"
+  },
+  "author": "Paul Burton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/paulburton0/HolidayCalendar/issues"
+  },
+  "homepage": "https://github.com/paulburton0/HolidayCalendar#readme",
+  "dependencies": {
+    "ics": "^2.19.0"
+  },
+  "devDependencies": {}
+}
