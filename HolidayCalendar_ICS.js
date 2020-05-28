@@ -4,7 +4,7 @@ const {writeFileSync } = require('fs');
 // This script populates an ICS file with events throughout the year 
 // on the US Public Holidays Calendar.
 
-const year = 2020;
+var years = [2020, 2021, 2022, 2023];
 
 var events = new Array();
 
@@ -53,6 +53,12 @@ function dayOfYear(month, date, year){
    }
    doy = doy + date;
    return doy;
+}
+
+function dayOfWeek(day, month, year){
+    var t = [ 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 ];
+    if(month < 3) year = year - 1;
+    return (( year + Math.floor(year / 4) - Math.floor(year / 100) + Math.floor(year / 400) + t[month - 1] + day) % 7);
 }
 
 function cartersQ(year){
@@ -105,52 +111,80 @@ function numToMonth(month){
   return (list[month]);
 }
 
-var easter = calcEaster(year);
-events.push(createEvent(year, extractMonth(easter, year), extractDate(easter, year), "Easter"));
+function dowHoliday(ordinal, dow, month, year){
+    var f = dayOfWeek(1, month, year);
+    var dom = ((dow - f + 7) % 7) + ((ordinal - 1) * 7) + 1;
+    return(dom);  
+}
 
-var x, fixedCount;
-var month, day, name, offset;
+function populateCalendar(year){
 
-var fixedHolidays = new Array
-  (
-  "New Years Day", 1, 1,
-  "Valentine's Day", 2, 14,
-  "St. Patrick's Day", 3, 17,
-  "Independence Day", 7, 4,
-  "Halloween", 10, 31,
-  "Veterans Day", 11, 11,
-  "Christmas Eve", 12, 24,
-  "Christmas", 12, 25,
-  "New Years Eve", 12, 31
-  );
+    var x, fixedCount;
+    var month, day, name;
 
-// MLK Jr. Day - 3rd Monday in January
-// Presidents' Day - 3nd Monday is February
-// Memorial Day - Last Monday in May
-// Labor Day - 1st Monday in September
-// Columbus Day - 2nd Monday in October
-// Thankgiving Day - 4th Thursday in November
+    var fixedHolidays = new Array
+        (
+        "New Years Day", 1, 1,
+        "Valentine's Day", 2, 14,
+        "St. Patrick's Day", 3, 17,
+        "Independence Day", 7, 4,
+        "Halloween", 10, 31,
+        "Veterans Day", 11, 11,
+        "Christmas Eve", 12, 24,
+        "Christmas", 12, 25,
+        "New Years Eve", 12, 31
+        );
+
+    fixedCount = fixedHolidays.length;
+ 
+    for(x = 0; x < fixedCount; x+=3){
+        var title = fixedHolidays[x];
+        var month = fixedHolidays[x+1];
+        var day = fixedHolidays[x+2];
+
+        if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 6){
+            if(x == 0){
+                events.push(createEvent(year - 1, 12, 31, title + ' (Observed)'));
+            }
+            else{
+                events.push(createEvent(year, month, day - 1, title + ' (Observed)'));
+            }
+        }
+        if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 0){
+            events.push(createEvent(year, month, day+1, title + ' (Observed)'));
+        }
+
+        events.push(createEvent(year, month, day, title));
+    }
+
+    var easter = calcEaster(year);
+    events.push(createEvent(year, extractMonth(easter, year), extractDate(easter, year), "Easter"));
 
 
-function populateCalendar(){
-  
-  fixedCount = fixedHolidays.length;
-  
-  for(x = 0; x < fixedCount; x+=3){
-    var title = fixedHolidays[x];
-    var month = fixedHolidays[x+1];
-    var day = fixedHolidays[x+2];
-    events.push(createEvent(year, month, day, title));
-  }
+    events.push(createEvent(year, 1, dowHoliday(3, 1, 1, year), "Martin Luther King, Jr. Day"));
+    events.push(createEvent(year, 2, dowHoliday(3, 1, 2, year), "Presidents' Day"));
+
+    if(dowHoliday(4, 1, 5, year) <= 31 - 7){
+        events.push(createEvent(year, 5, dowHoliday(4, 1, 5, year) + 7, "Memorial Day"));
+    }
+    else{
+        events.push(createEvent(year, 5, dowHoliday(4, 1, 5, year), "Memorial Day"));
+    }
+
+    events.push(createEvent(year, 9, dowHoliday(1, 1, 9, year), "Labor Day"));
+    events.push(createEvent(year, 10, dowHoliday(2, 1, 10, year), "Columbus Day"));
+    events.push(createEvent(year, 11, dowHoliday(4, 4, 11, year), "Thanksgiving Day"));
 
 } 
 
-populateCalendar();
+for( n = 0; n < years.length; n++ ){
+    populateCalendar(years[n]);
+}
 
 ics.createEvents(events, function(error, value){
     if (error) {
         console.error(error);
         return;
     }
-    writeFileSync('./HolidayCal_'+year+'.ics', value);
+    writeFileSync('./HolidayCal.ics', value);
 });
