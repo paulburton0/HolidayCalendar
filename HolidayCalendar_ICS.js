@@ -4,7 +4,7 @@ const {writeFileSync } = require('fs');
 // This script populates an ICS file with events throughout the year 
 // on the US Public Holidays Calendar.
 
-var years = [2020, 2021, 2022, 2023];
+var years = [2021, 2022, 2023, 2024];
 
 var events = new Array();
 
