@@ -127,6 +127,7 @@ function populateCalendar(year){
         "New Years Day", 1, 1,
         "Valentine's Day", 2, 14,
         "St. Patrick's Day", 3, 17,
+        "Juneteenth", 6, 18,
         "Independence Day", 7, 4,
         "Halloween", 10, 31,
         "Veterans Day", 11, 11,
