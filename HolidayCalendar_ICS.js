@@ -4,7 +4,7 @@ const {writeFileSync } = require('fs');
 // This script populates an ICS file with events throughout the year 
 // on the US Public Holidays Calendar.
 
-var years = [2021, 2022, 2023, 2024];
+var years = [2022, 2023, 2024];
 
 var events = new Array();
 
@@ -104,6 +104,7 @@ function extractDate(dayOfYear, year){
    return day;
 }
 
+// numToMonth returns the month abbreviation for a given month number. This is zero-indexed, i.e. "0" returns "Jan" and "11" returns "Dec".
 function numToMonth(month){
   var list = new Array
     ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -111,6 +112,10 @@ function numToMonth(month){
   return (list[month]);
 }
 
+// dowHoliday calculates, for a given year, the dates for holidays that occur on the Nth X-day of a month each year.
+// ordinal is the "Nth" part, i.e. the "Third" in "Third Monday of January"
+// dow is the day of the week, i.e. "Monday" in "Third Monday of January"
+// month is the month, i.e. "January" in "Third Monday of January"
 function dowHoliday(ordinal, dow, month, year){
     var f = dayOfWeek(1, month, year);
     var dom = ((dow - f + 7) % 7) + ((ordinal - 1) * 7) + 1;
@@ -122,12 +127,13 @@ function populateCalendar(year){
     var x, fixedCount;
     var month, day, name;
 
+    // Fixed holidays happen on the same date every year. 
     var fixedHolidays = new Array
         (
         "New Years Day", 1, 1,
         "Valentine's Day", 2, 14,
         "St. Patrick's Day", 3, 17,
-        "Juneteenth", 6, 18,
+        "Juneteenth", 6, 19,
         "Independence Day", 7, 4,
         "Halloween", 10, 31,
         "Veterans Day", 11, 11,
@@ -143,14 +149,18 @@ function populateCalendar(year){
         var month = fixedHolidays[x+1];
         var day = fixedHolidays[x+2];
 
+        // If the fixed holiday falls on a Saturday, the "observation" occurs on the previous day (Friday)
         if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 6){
-            if(x == 0){
+
+            if(x == 0){        // For a New Year's Day that falls on a Saturday, the observance (Friday) is actually in the previous year.
                 events.push(createEvent(year - 1, 12, 31, title + ' (Observed)'));
             }
             else{
                 events.push(createEvent(year, month, day - 1, title + ' (Observed)'));
             }
         }
+
+        // If the fixed holiday falls on a Sundday, the "observation" occurs on the following day (Monday)
         if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 0){
             events.push(createEvent(year, month, day+1, title + ' (Observed)'));
         }
@@ -159,12 +169,15 @@ function populateCalendar(year){
     }
 
     var easter = calcEaster(year);
+
     events.push(createEvent(year, extractMonth(easter, year), extractDate(easter, year), "Easter"));
 
-
     events.push(createEvent(year, 1, dowHoliday(3, 1, 1, year), "Martin Luther King, Jr. Day"));
+
     events.push(createEvent(year, 2, dowHoliday(3, 1, 2, year), "Presidents' Day"));
 
+
+    // Because Memorial Day isn't like most "Nth X-day of the month" holidays -- instead it's the LAST Monday, we have to calculate it a bit differently
     if(dowHoliday(4, 1, 5, year) <= 31 - 7){
         events.push(createEvent(year, 5, dowHoliday(4, 1, 5, year) + 7, "Memorial Day"));
     }
@@ -173,8 +186,18 @@ function populateCalendar(year){
     }
 
     events.push(createEvent(year, 9, dowHoliday(1, 1, 9, year), "Labor Day"));
+
     events.push(createEvent(year, 10, dowHoliday(2, 1, 10, year), "Columbus Day"));
+
     events.push(createEvent(year, 11, dowHoliday(4, 4, 11, year), "Thanksgiving Day"));
+
+    events.push(createEvent(year, 3, dowHoliday(2, 0, 3, year), "Daylight Saving Time Begins"));
+
+    events.push(createEvent(year, 11, dowHoliday(1, 0, 11, year), "Daylight Saving Time Ends"));
+
+    events.push(createEvent(year, 6, dowHoliday(3, 0, 6, year), "Father's Day"));
+
+    events.push(createEvent(year, 5, dowHoliday(2, 0, 5, year), "Mother's Day"));
 
 } 
 
