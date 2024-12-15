@@ -4,7 +4,7 @@ const {writeFileSync } = require('fs');
 // This script populates an ICS file with events throughout the year 
 // on the US Public Holidays Calendar.
 
-var years = [2022, 2023, 2024];
+var years = [2023, 2024];
 
 var events = new Array();
 
@@ -130,16 +130,14 @@ function populateCalendar(year){
     // Fixed holidays happen on the same date every year. 
     var fixedHolidays = new Array
         (
-        "New Years Day", 1, 1,
+        "New Year's Day", 1, 1,
         "Valentine's Day", 2, 14,
         "St. Patrick's Day", 3, 17,
         "Juneteenth", 6, 19,
         "Independence Day", 7, 4,
         "Halloween", 10, 31,
         "Veterans Day", 11, 11,
-        "Christmas Eve", 12, 24,
-        "Christmas", 12, 25,
-        "New Years Eve", 12, 31
+        "Christmas Day", 12, 25
         );
 
     fixedCount = fixedHolidays.length;
@@ -160,9 +158,9 @@ function populateCalendar(year){
             }
         }
 
-        // If the fixed holiday falls on a Sundday, the "observation" occurs on the following day (Monday)
+        // If the fixed holiday falls on a Sunday, the "observation" occurs on the following day (Monday)
         if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 0){
-            events.push(createEvent(year, month, day+1, title + ' (Observed)'));
+            events.push(createEvent(year, month, day + 1, title + ' (Observed)'));
         }
 
         events.push(createEvent(year, month, day, title));
