@@ -148,7 +148,7 @@ function populateCalendar(year){
         var day = fixedHolidays[x+2];
 
         // If the fixed holiday falls on a Saturday, the "observation" occurs on the previous day (Friday)
-        if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 6){
+        if((x == 0 || x == 9 || x == 12 || x == 18 || x == 21) && (dayOfWeek(day, month, year) == 6)){ // the numbers in the compound OR expression (0, 9, 12, etc.) are the indexes of the holiday name in the fixedHolidays array.
 
             if(x == 0){        // For a New Year's Day that falls on a Saturday, the observance (Friday) is actually in the previous year.
                 events.push(createEvent(year - 1, 12, 31, title + ' (Observed)'));
@@ -159,7 +159,8 @@ function populateCalendar(year){
         }
 
         // If the fixed holiday falls on a Sunday, the "observation" occurs on the following day (Monday)
-        if(x == (0 || 9 || 15 || 18) && dayOfWeek(day, month, year) == 0){
+        if((x == 0 || x == 9 || x == 12 || x == 18 || x == 21) && (dayOfWeek(day, month, year) == 0)){ // the numbers in the compound OR expression (0, 9, 12, etc.) are the indexes of the holiday name in the fixedHolidays array.
+            
             events.push(createEvent(year, month, day + 1, title + ' (Observed)'));
         }
 
